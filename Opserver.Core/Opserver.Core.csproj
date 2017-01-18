@@ -107,19 +107,11 @@
     <Compile Include="Data\Dashboard\GraphPoint.cs" />
     <Compile Include="Data\Dashboard\HardwareSummary.cs" />
     <Compile Include="Data\Dashboard\HardwareType.cs" />
-    <Compile Include="Data\Dashboard\Providers\BosunDataProvider.cs" />
-    <Compile Include="Data\Dashboard\Providers\BosunDataProvider.Metrics.cs">
-      <DependentUpon>BosunDataProvider.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Data\Dashboard\Providers\BosunDataProvider.Nodes.cs">
-      <DependentUpon>BosunDataProvider.cs</DependentUpon>
-    </Compile>
     <Compile Include="Data\Dashboard\Providers\DashboardDataProvider.cs" />
     <Compile Include="Data\Dashboard\Node.Data.cs">
       <DependentUpon>Node.cs</DependentUpon>
     </Compile>
     <Compile Include="Data\Dashboard\Providers\EmptyDataProvider.cs" />
-    <Compile Include="Data\Dashboard\Providers\OrionDataProvider.cs" />
     <Compile Include="Data\Dashboard\Providers\WmiDataProvider.cs" />
     <Compile Include="Data\Dashboard\Providers\WmiDataProvider.Data.cs">
       <DependentUpon>WmiDataProvider.cs</DependentUpon>

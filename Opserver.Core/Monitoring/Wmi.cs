@@ -29,16 +29,6 @@ namespace StackExchange.Opserver.Monitoring
                 Authentication = AuthenticationLevel.Packet,
                 Timeout = TimeSpan.FromSeconds(30)
             };
-            string username = Current.Settings.Dashboard.Providers?.WMI?.Username ??
-                              Current.Settings.Polling.Windows?.AuthUser.IsNullOrEmptyReturn(null),
-                password = Current.Settings.Dashboard.Providers?.WMI?.Password ??
-                           Current.Settings.Polling.Windows?.AuthPassword.IsNullOrEmptyReturn(null);
-
-            if (username.HasValue() && password.HasValue())
-            {
-                _remoteOptions.Username = username;
-                _remoteOptions.Password = password;
-            }       
         }
 
         private static ConnectionOptions GetConnectOptions(string machineName)
@@ -72,6 +62,16 @@ namespace StackExchange.Opserver.Monitoring
                     throw new ArgumentException("machineName should not be empty.");
 
                 var connectionOptions = GetConnectOptions(machineName);
+                string username = Current.Settings.Dashboard.Providers?.WMI?.FirstOrDefault(a => a.Nodes.Contains(machineName))?.Username ??
+                             Current.Settings.Polling.Windows?.AuthUser.IsNullOrEmptyReturn(null),
+               password = Current.Settings.Dashboard.Providers?.WMI?.FirstOrDefault(a => a.Nodes.Contains(machineName))?.Password ??
+                          Current.Settings.Polling.Windows?.AuthPassword.IsNullOrEmptyReturn(null);
+
+                if (username.HasValue() && password.HasValue())
+                {
+                    _remoteOptions.Username = username;
+                    _remoteOptions.Password = password;
+                }
                 var scope = new ManagementScope($@"\\{machineName}\{wmiNamespace}", connectionOptions);
                 _searcher = new ManagementObjectSearcher(scope, new ObjectQuery(q), new EnumerationOptions{Timeout = connectionOptions.Timeout});
             }

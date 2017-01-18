@@ -8,14 +8,14 @@ namespace StackExchange.Opserver.Data.Dashboard.Providers
 {
     partial class WmiDataProvider : DashboardDataProvider<WMISettings>
     {
-        private readonly WMISettings _config;
+        private readonly IEnumerable<WMISettings>  _config;
         private readonly List<WmiNode> _wmiNodes;
         private readonly Dictionary<string, WmiNode> _wmiNodeLookup;
 
-        public WmiDataProvider(WMISettings settings) : base(settings)
+        public WmiDataProvider(IEnumerable<WMISettings> settings) : base(settings)
         {
             _config = settings;
-            _wmiNodes = InitNodeList(_config.Nodes).OrderBy(x => x.Endpoint).ToList();
+            _wmiNodes = InitNodeList(_config.Select(a =>a.Nodes).ToList()).OrderBy(x => x.Endpoint).ToList();
             // Do this ref cast list once
             AllNodes = _wmiNodes.Cast<Node>().ToList();
             // For fast lookups
@@ -30,49 +30,52 @@ namespace StackExchange.Opserver.Data.Dashboard.Providers
         /// Make list of nodes as per configuration. 
         /// When adding, a node's ip address is resolved via Dns.
         /// </summary>
-        private IEnumerable<WmiNode> InitNodeList(IList<string> names)
+        private IEnumerable<WmiNode> InitNodeList(IEnumerable<IList<string>> names)
         {
-            var nodesList = new List<WmiNode>(names.Count);
+            var nodesList = new List<WmiNode>();
             var exclude = Current.Settings.Dashboard.ExcludePatternRegex;
-            foreach (var nodeName in names)
+            foreach (var nodeNames in names)
             {
-                if (exclude?.IsMatch(nodeName) ?? false) continue;
-
-                var node = new WmiNode(nodeName)
+                foreach (var nodeName in nodeNames)
                 {
-                    Config = _config,
-                    DataProvider = this
-                };
+                    if (exclude?.IsMatch(nodeName) ?? false) continue;
 
-                try
-                {
-                    var hostEntry = Dns.GetHostEntry(node.Name);
-                    if (hostEntry.AddressList.Any())
+                    var node = new WmiNode(nodeName)
                     {
-                        node.Ip = hostEntry.AddressList[0].ToString();
-                        node.Status = NodeStatus.Active;
+                        Config = _config.FirstOrDefault(a => a.Nodes.Contains(nodeName)),
+                        DataProvider = this
+                    };
+
+                    try
+                    {
+                        var hostEntry = Dns.GetHostEntry(node.Name);
+                        if (hostEntry.AddressList.Any())
+                        {
+                            node.Ip = hostEntry.AddressList[0].ToString();
+                            node.Status = NodeStatus.Active;
+                        }
+                        else
+                        {
+                            node.Status = NodeStatus.Unreachable;
+                        }
                     }
-                    else
+                    catch (Exception)
                     {
                         node.Status = NodeStatus.Unreachable;
                     }
-                }
-                catch (Exception)
-                {
-                    node.Status = NodeStatus.Unreachable;
-                }
 
-                node.Caches.Add(ProviderCache(
-                    () => node.PollNodeInfoAsync(),
-                    _config.StaticDataTimeoutSeconds.Seconds(),
-                    memberName: node.Name + "-Static"));
+                    node.Caches.Add(ProviderCache(
+                        () => node.PollNodeInfoAsync(),
+                        node.Config.StaticDataTimeoutSeconds.Seconds(),
+                        memberName: node.Name + "-Static"));
 
-                node.Caches.Add(ProviderCache(
-                    () => node.PollStats(),
-                    _config.DynamicDataTimeoutSeconds.Seconds(),
-                    memberName: node.Name + "-Dynamic"));
-                
-                nodesList.Add(node);
+                    node.Caches.Add(ProviderCache(
+                        () => node.PollStats(),
+                        node.Config.DynamicDataTimeoutSeconds.Seconds(),
+                        memberName: node.Name + "-Dynamic"));
+
+                    nodesList.Add(node);
+                }
             }
             return nodesList;
         }

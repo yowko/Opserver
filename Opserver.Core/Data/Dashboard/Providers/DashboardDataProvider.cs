@@ -9,9 +9,9 @@ namespace StackExchange.Opserver.Data.Dashboard.Providers
 {
     public abstract class DashboardDataProvider<TSettings> : DashboardDataProvider where TSettings : class, IProviderSettings
     {
-        public TSettings Settings { get; protected set; }
+        public IEnumerable<TSettings> Settings { get; protected set; }
 
-        protected DashboardDataProvider(TSettings settings) : base(settings)
+        protected DashboardDataProvider(IEnumerable<TSettings> settings) : base(settings)
         {
             Settings = settings;
         }
@@ -40,9 +40,9 @@ namespace StackExchange.Opserver.Data.Dashboard.Providers
 
         protected DashboardDataProvider(string uniqueKey) : base(uniqueKey) { }
 
-        protected DashboardDataProvider(IProviderSettings settings) : base(settings.Name + "Dashboard")
+        protected DashboardDataProvider(IEnumerable<IProviderSettings> settings) : base(settings.FirstOrDefault().Name + "Dashboard")
         {
-            Name = settings.Name;
+            Name = settings.FirstOrDefault().Name;
         }
 
         /// <summary>

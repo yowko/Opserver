@@ -5,13 +5,13 @@ namespace StackExchange.Opserver
 {
     public class ProvidersSettings
     {
-        public BosunSettings Bosun { get; set; }
-        public OrionSettings Orion { get; set; }
-        public WMISettings WMI { get; set; }
+        public List<BosunSettings> Bosun { get; set; }
+        public List<OrionSettings> Orion { get; set; }
+        public List<WMISettings> WMI { get; set; }
 
         public bool Any() => All.Any(p => p != null);
 
-        public IEnumerable<IProviderSettings> All
+        public IEnumerable<IEnumerable<IProviderSettings>> All
         {
             get
             {

@@ -222,6 +222,7 @@
       <DependentUpon>compilerconfig.json</DependentUpon>
     </Content>
     <Content Include="Config\CloudFlareSettings.json.example" />
+    <None Include="Config\DashboardSettings.json" />
     <None Include="Config\PagerDutySettings.json.example" />
     <Content Include="Content\bootstrap\less\.csscomb.json" />
     <Content Include="Content\bootstrap\less\.csslintrc" />
@@ -388,6 +389,7 @@
     <Content Include="Content\font-awesome\less\screen-reader.less" />
     <Content Include="Content\font-awesome\less\stacked.less" />
     <Content Include="Content\font-awesome\less\variables.less" />
+    <None Include="Config\SecuritySettings.config" />
     <None Include="Help\SQL\WaitStats.md" />
     <Content Include="Views\CloudFlare\Dashboard.cshtml" />
     <Content Include="Views\Dashboard\Node.Graph.cshtml">

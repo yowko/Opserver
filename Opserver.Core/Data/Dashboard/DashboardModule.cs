@@ -23,14 +23,21 @@ namespace StackExchange.Opserver.Data.Dashboard
             Enabled = true;
             foreach (var p in providers.All)
             {
-                p?.Normalize();
+                if (p!=null)
+                {
+                    foreach (var item in p)
+                    {
+                        item?.Normalize();
+                    }   
+                }
+                
             }
 
             // Add each provider type here
-            if (providers.Bosun != null)
-                Providers.Add(new BosunDataProvider(providers.Bosun));
-            if (providers.Orion != null)
-                Providers.Add(new OrionDataProvider(providers.Orion));
+            //if (providers.Bosun != null)
+            //    Providers.Add(new BosunDataProvider(providers.Bosun));
+            //if (providers.Orion != null)
+            //    Providers.Add(new OrionDataProvider(providers.Orion));
             if (providers.WMI != null)
                 Providers.Add(new WmiDataProvider(providers.WMI));
 
